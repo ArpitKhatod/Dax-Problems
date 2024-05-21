@@ -1,0 +1,17 @@
+Risk_offtake (Mov) Yesterday = 
+VAR SelectedDate = MAX(Risk_Offtake_Unpivoted[File Created Date])
+VAR SelectedDate2 =  MAX ('Attribute Calendar'[Attribute Date] )-1
+VAR PreviousDay_ = 
+    CALCULATE(
+        MAX(Risk_Offtake_Unpivoted[File Created Date]), REMOVEFILTERS(Risk_Offtake_Unpivoted),
+        Risk_Offtake_Unpivoted[File Created Date] < SelectedDate
+    )
+RETURN
+    CALCULATE(
+        SUM(Risk_Offtake_Unpivoted[Value]),
+            REMOVEFILTERS(Risk_Offtake[File Created Date]),
+                Risk_Offtake_Unpivoted[Value] <> 0,
+                Risk_Offtake_Unpivoted[File Created Date] = PreviousDay_,
+                Risk_Offtake_Unpivoted[File Created Date] < SelectedDate2,
+                Risk_Offtake[ContractType] IN {"SME", "KAM fixed"}
+    )
