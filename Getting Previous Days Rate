@@ -35,3 +35,41 @@ var Res =   IF(NOT ISBLANK(TodayRate), TodayRate,
     )
 RETURN 
 Res
+
+
+Another Way 
+** Sonia_Rate = //SELECTEDVALUE('Sonia Rate'[Sonia Rate])
+VAR LastAvailableDate = 
+    CALCULATE(
+        MAX('Calendar'[Date]),
+        REMOVEFILTERS('Calendar')
+    )
+
+VAR TodayRate = 
+    CALCULATE(
+        SELECTEDVALUE('Sonia Rate'[Sonia Rate]),
+        'Sonia Rate'[Sonia Date] = LastAvailableDate
+    )
+
+VAR PreviousBusinessDay = 
+    SWITCH(
+        WEEKDAY(LastAvailableDate, 2),
+        1, LastAvailableDate - 3,  -- If the last available date is Monday, go back to Friday
+        7, LastAvailableDate - 2,  -- If the last available date is Sunday, go back to Friday
+        LastAvailableDate - 1      -- For other days, go back by one day
+    )
+
+VAR YesterdayRate = 
+    CALCULATE(
+        SELECTEDVALUE('Sonia Rate'[Sonia Rate]),
+        'Sonia Rate'[Sonia Date] = PreviousBusinessDay
+    )
+
+VAR LastAvailableRate =
+    CALCULATE(
+        LASTNONBLANK('Sonia Rate'[Sonia Rate], TRUE),
+        REMOVEFILTERS('Sonia Rate')
+    )
+
+RETURN 
+    COALESCE(TodayRate,YesterdayRate, LastAvailableRate)
