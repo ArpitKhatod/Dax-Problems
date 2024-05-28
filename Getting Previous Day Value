@@ -1,0 +1,17 @@
+ Interest Rate = 
+
+VAR _MaxDate = MAX('Calendar'[Date])
+VAR _LastAvailableDate = 
+    CALCULATE(
+        MAX('Sheet : T Connect Download'[Data Received Date]),
+        ALL('Calendar'),
+        'Sheet : T Connect Download'[Data Received Date] < _MaxDate
+    )
+RETURN
+    CALCULATE(
+        MAX(
+            'Sheet : T Connect Download'[Interest Rate(%)]),
+                    'Sheet : T Connect Download'[Deal / Account Number] = 00,
+                         ALL('Calendar'),
+                         'Sheet : T Connect Download'[Data Received Date] = _LastAvailableDate
+                    )
